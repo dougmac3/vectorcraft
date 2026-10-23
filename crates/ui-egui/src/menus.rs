@@ -1196,6 +1196,10 @@ pub fn check_params(session: &vectorcraft_engine::Session, id: &str, params: &Va
 }
 
 pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<Result<Value, String>> {
+    // File › Add to Fossa chat: the artboard as a PNG, through the download the Fossa page takes.
+    if id == "fossa.addToChat" {
+        return Some(fossa_add_to_chat(app));
+    }
     // The Window menu's panel items toggle like its other checked items (#2361); the panel's
     // other ways in (shortcuts, Show Properties Panel, a tool's double-click) only show it.
     if id == "window.panel" && p.get("toggle").and_then(Value::as_bool) == Some(true) && checked(app, id, p) == Some(true) {
@@ -1867,6 +1871,14 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
 
 /// `view.goToArtboard`: make artboard `index` (a number, or first / previous / next / last from
 /// the current one) active, synchronizing the Artboard tool when in use, and fit it in the window.
+fn fossa_add_to_chat(app: &mut VectorcraftApp) -> Result<Value, String> {
+    let r = app.run("document.export", json!({"format": "png"}))?;
+    let bytes = r["dataBase64"].as_str().and_then(vectorcraft_format::base64_decode).ok_or("the export returned no picture")?;
+    crate::io::write_to(&mut app.services, "vector.png", &bytes)?;
+    app.status("Added to the Fossa chat");
+    Ok(json!({"name": "vector.png", "bytes": bytes.len()}))
+}
+
 fn go_to_artboard(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     let n = app.session.active().map(|d| d.doc.artboards.len()).ok_or("no document open")?;
     let last = n.checked_sub(1).ok_or("the document has no artboards")?;
@@ -2421,7 +2433,8 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
         id if let Some(b) = crate::panels::align::button(id) => enabled(app, b.command()),
         "file.reveal" => app.services.reveal.is_some() && app.session.active().is_some_and(|d| d.path.is_some()),
         "file.cancelExport" | "file.exportInBackground" => app.background.jobs.iter().any(|j| j.progress.is_some() && !j.cancelled()),
-        "file.place"
+        "fossa.addToChat"
+        | "file.place"
         | "file.export.svg"
         | "file.export.png"
         | "file.exportAs"
@@ -2510,6 +2523,37 @@ pub fn menu_tree() -> Vec<(&'static str, Vec<Item>)> {
 }
 
 pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
+    let mut tree = full_menu_tree(english_names);
+    if crate::fossa_hosted() {
+        fossa_menus(&mut tree);
+    }
+    tree
+}
+
+/// Inside Fossa, files come from and go back to Fossa: File keeps New, Place, Export As and Close,
+/// led by Add to Fossa chat (the artboard as a PNG, which the page hands to Fossa); no menu links
+/// to the project or its community.
+fn fossa_menus(tree: &mut [(&'static str, Vec<Item>)]) {
+    for (title, items) in tree.iter_mut() {
+        if *title == "File" {
+            *items = vec![
+                c("Add to Fossa chat", "fossa.addToChat"),
+                Sep,
+                c("New…", "file.newDialog"),
+                c("Place…", "file.place"),
+                c("Export As…", "file.exportAs"),
+                Sep,
+                c("Close", "file.close"),
+            ];
+        }
+        items.retain(|it| !matches!(it, Item::Cmd(_, id, _) if crate::COMMUNITY_LINKS.contains(id)));
+        if matches!(items.first(), Some(Sep)) {
+            items.remove(0);
+        }
+    }
+}
+
+fn full_menu_tree(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
     let panel = |label: &'static str, id: &'static str| cp(label, "window.panel", json!({ "panel": id, "toggle": true }));
     vec![
         (
@@ -4223,6 +4267,22 @@ pub fn menu_strings() -> std::collections::BTreeSet<String> {
 mod tests {
     use super::*;
     use crate::theme;
+
+    #[test]
+    fn fossa_menus_trim_file_and_drop_community_links() {
+        let mut tree = full_menu_tree(true);
+        fossa_menus(&mut tree);
+        let ids = |title: &str| -> Vec<&str> {
+            let (_, items) = tree.iter().find(|(t, _)| *t == title).unwrap();
+            items.iter().filter_map(|i| if let Item::Cmd(_, id, _) = i { Some(*id) } else { None }).collect()
+        };
+        assert_eq!(ids("File"), ["fossa.addToChat", "file.newDialog", "file.place", "file.exportAs", "file.close"]);
+        for (_, items) in &tree {
+            assert!(!items.iter().any(|i| matches!(i, Item::Cmd(_, id, _) if crate::COMMUNITY_LINKS.contains(id))));
+            assert!(!matches!(items.first(), Some(Sep)));
+        }
+        assert!(ids("Help").contains(&"help.about"));
+    }
 
     /// One headless frame of the in-window menu bar; returns its titles (left to right) as
     /// (rect, id of the title's popup).

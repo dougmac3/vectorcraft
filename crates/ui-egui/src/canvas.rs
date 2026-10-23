@@ -3148,6 +3148,9 @@ fn home_content(app: &mut VectorcraftApp, ui: &mut Ui) {
             }
         }
     });
+    if crate::fossa_hosted() {
+        return;
+    }
     ui.add_space(28.0);
     ui.label(egui::RichText::new(tl!("Community")).font(theme::semibold(14.0)).color(t.text));
     ui.add_space(10.0);

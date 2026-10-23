@@ -64,6 +64,17 @@ pub mod unsaved;
 pub mod widgets;
 pub mod workspaces;
 
+/// Set by the web shell when VectorCraft runs inside Fossa Direct (`?fossa=<room origin>`).
+pub static FOSSA_HOSTED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Inside Fossa: no brand mark, community links or extra app-bar controls, and a short File menu.
+pub fn fossa_hosted() -> bool {
+    FOSSA_HOSTED.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// The Help commands that link to the project and its community (hidden inside Fossa).
+pub const COMMUNITY_LINKS: [&str; 5] = ["help.discord", "help.website", "help.appPage", "help.github", "help.links"];
+
 mod document_drag;
 #[cfg(test)]
 mod tests_adjust;
@@ -949,6 +960,9 @@ impl VectorcraftApp {
 
     /// Run a Help link command and open the URL it returns.
     pub fn open_link(&mut self, id: &str) {
+        if fossa_hosted() {
+            return;
+        }
         if let Ok(v) = self.run(id, serde_json::json!({}))
             && let Some(u) = v["url"].as_str()
         {

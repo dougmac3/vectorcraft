@@ -64,6 +64,13 @@ pub fn start() {
         return;
     };
     detect_language();
+    // Inside Fossa Direct (`?fossa=<room origin>`, a local room only): no ArtCraft branding or
+    // community links. Files go through window.vectorcraft and Fossa's own bridge script.
+    if let Some(origin) = query_param("fossa").and_then(|v| js_sys::decode_uri_component(&v).ok()?.as_string())
+        && (origin.starts_with("http://127.0.0.1:") || origin.starts_with("http://localhost:"))
+    {
+        vectorcraft_ui_egui::FOSSA_HOSTED.store(true, std::sync::atomic::Ordering::Relaxed);
+    }
     wasm_bindgen_futures::spawn_local(async move {
         // Before the first frame, which looks for copies a crash left behind.
         let locks = WebLocks::start(RECOVERY_PREFIX).await;

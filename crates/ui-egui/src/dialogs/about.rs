@@ -20,16 +20,22 @@ pub(super) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
             // Tabs: About · Contributors · Models (the credits are compiled in, see `credits`).
             let tab_id = egui::Id::new("about_tab");
             let mut tab = ui.data_mut(|d| d.get_temp::<u8>(tab_id)).unwrap_or(0);
-            ui.horizontal(|ui| {
+            // Inside Fossa: the About tab alone (the credits link to GitHub profiles).
+            let hosted = crate::fossa_hosted();
+            if hosted {
+                tab = 0;
+            } else {
+                ui.horizontal(|ui| {
                 for (i, label) in [tl!("About"), tl!("Contributors"), tl!("Models")].into_iter().enumerate() {
                     let i = i as u8;
                     if ui.selectable_label(tab == i, label).clicked() {
                         tab = i;
                     }
                 }
-            });
+                });
+                ui.separator();
+            }
             ui.data_mut(|d| d.insert_temp(tab_id, tab));
-            ui.separator();
             match tab {
                 1 => {
                     ui.set_width(660.0);
@@ -48,9 +54,12 @@ pub(super) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
 /// The About tab: mark, version, community links, licences and the GPU in use.
 fn about_tab(app: &mut VectorcraftApp, ui: &mut egui::Ui) {
     ui.set_width(380.0);
+    let hosted = crate::fossa_hosted();
     ui.horizontal(|ui| {
-        let (r, _) = ui.allocate_exact_size(egui::vec2(44.0, 44.0), egui::Sense::hover());
-        crate::brand::paint_mark(ui, r);
+        if !hosted {
+            let (r, _) = ui.allocate_exact_size(egui::vec2(44.0, 44.0), egui::Sense::hover());
+            crate::brand::paint_mark(ui, r);
+        }
         ui.vertical(|ui| {
             ui.label(egui::RichText::new("VectorCraft").font(theme::semibold(22.0)));
             ui.label(crate::i18n::fmt(
@@ -60,14 +69,21 @@ fn about_tab(app: &mut VectorcraftApp, ui: &mut egui::Ui) {
         });
     });
     ui.add_space(12.0);
-    crate::community::links(app, ui);
-    ui.add_space(12.0);
-    ui.label(
-        egui::RichText::new(tl!(
-            "Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft."
-        ))
-        .size(11.0),
-    );
+    if hosted {
+        // No ArtCraft name or community links inside Fossa; the licences stay.
+        ui.label(
+            egui::RichText::new("MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.").size(11.0),
+        );
+    } else {
+        crate::community::links(app, ui);
+        ui.add_space(12.0);
+        ui.label(
+            egui::RichText::new(tl!(
+                "Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft."
+            ))
+            .size(11.0),
+        );
+    }
     // The GPU the window renders with, for bug reports (Preferences › Performance picks it).
     if let Some(adapter) = &app.graphics_adapter {
         ui.add_space(6.0);

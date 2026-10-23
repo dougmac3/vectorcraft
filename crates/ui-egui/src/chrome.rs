@@ -40,7 +40,8 @@ pub fn app_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
         }
         ui.horizontal_centered(|ui| {
             // With the system title bar the OS draws its own icon: no in-app brand mark.
-            if !system {
+            // Inside Fossa: no brand mark either.
+            if !system && !crate::fossa_hosted() {
                 let (r, _) = ui.allocate_exact_size(vec2(MARK, MARK), Sense::hover());
                 crate::brand::paint_mark(ui, r);
                 ui.add_space(6.0);
@@ -52,6 +53,11 @@ pub fn app_bar(app: &mut VectorcraftApp, ui: &mut Ui) {
             ui.add_space(2.0);
             // With the macOS menu bar the menus are at the top of the screen instead.
             let menus_end = if app.services.native_menu.is_some() { ui.cursor().min.x } else { menus::menu_bar(app, ui) };
+            // Inside Fossa's narrow panel the bar is Home and the menus: no workspace switcher,
+            // search icon, Discord or title.
+            if crate::fossa_hosted() {
+                return;
+            }
             // The right-side group fills the space after the menus from the right; when it runs
             // short, Discord goes first (it is also under Help), then the search icon (the palette
             // stays under its shortcut), then the workspace switcher narrows.
