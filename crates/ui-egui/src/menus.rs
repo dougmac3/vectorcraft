@@ -1196,7 +1196,7 @@ pub fn check_params(session: &vectorcraft_engine::Session, id: &str, params: &Va
 }
 
 pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<Result<Value, String>> {
-    // File › Add to Fossa chat: the artboard as a PNG, through the download the Fossa page takes.
+    // File > Add to Fossa chat: the artboard as a PNG, through the download the Fossa page takes.
     if id == "fossa.addToChat" {
         return Some(fossa_add_to_chat(app));
     }
@@ -2539,9 +2539,9 @@ fn fossa_menus(tree: &mut [(&'static str, Vec<Item>)]) {
             *items = vec![
                 c("Add to Fossa chat", "fossa.addToChat"),
                 Sep,
-                c("New…", "file.newDialog"),
-                c("Place…", "file.place"),
-                c("Export As…", "file.exportAs"),
+                c("New\u{2026}", "file.newDialog"),
+                c("Place\u{2026}", "file.place"),
+                c("Export As\u{2026}", "file.exportAs"),
                 Sep,
                 c("Close", "file.close"),
             ];
