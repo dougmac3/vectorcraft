@@ -3522,7 +3522,7 @@ fn render_row(app: &VectorcraftApp, ui: &mut egui::Ui, row: &Row, checks: bool, 
     let sampled = p.get("font").and_then(Value::as_str).filter(|_| id == "text.setStyle" && app.session.prefs.font_preview);
     let r = match sampled {
         Some(family) => {
-            let slot = ui.id().with(("font-sample", family));
+            let slot = egui::IdSalt::new(("font-sample", family));
             let button = egui::Button::new(text).right_text(egui::Atom::custom(slot, crate::font_menu::MENU_SAMPLE_SIZE));
             let out = ui.add_enabled_ui(row.enabled, |ui| button.atom_ui(ui)).inner;
             if let Some(rect) = out.rect(slot) {

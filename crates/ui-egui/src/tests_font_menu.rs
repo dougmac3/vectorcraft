@@ -381,7 +381,7 @@ fn the_search_field_stays_put_while_the_list_scrolls() {
     let field = field.expect("the search field shows");
     let over_list = egui::pos2(field.x + 40.0, field.y + 120.0);
     for dy in [-400.0, -4000.0, -4000.0] {
-        let wheel = egui::Event::MouseWheel {
+        let wheel = egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
             unit: egui::MouseWheelUnit::Point,
             delta: egui::vec2(0.0, dy),
             modifiers: Default::default(),

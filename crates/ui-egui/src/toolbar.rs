@@ -161,7 +161,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut Ui, cols: usize, floating: Option<egu
         );
     }
     crate::floating::drag_tools(app, ui.ctx(), &hresp.union(gresp.clone()), bounds, floating);
-    hresp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!("Toggle single/double column")));
+    hresp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!("Toggle single/double column")));
     if hresp.on_hover_text(tl!("Toggle single/double column")).clicked()
         // It only fails on bad params, which this never sends; show it all the same.
         && let Err(e) = app.run("window.toolbarColumns", json!({ "double": cols == 1 }))
@@ -169,7 +169,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut Ui, cols: usize, floating: Option<egu
         app.ui.status = e;
     }
     let grip_tip = if floating.is_some() { tl!("Drag to the window's left edge to dock") } else { tl!("Drag to float the toolbar") };
-    gresp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), grip_tip));
+    gresp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), grip_tip));
     gresp.on_hover_cursor(egui::CursorIcon::Grab).on_hover_text(grip_tip);
     // The tools and the controls under them scroll in a window too short for them.
     widgets::strip_scroll(ui, "toolbar", |ui| {
@@ -262,7 +262,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut Ui, cols: usize, floating: Option<egu
                     } else if resp.clicked() {
                         app.select_tool(shown.id);
                     }
-                    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, ui.is_enabled(), is_active, tip(shown)));
+                    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), is_active, tip(shown)));
                     resp.on_hover_text(tip(shown));
                 }
             });
@@ -475,7 +475,7 @@ fn bottom_controls(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, cols: usiz
                     "paint.lastGradient" => widgets::gradient_chip(ui, r, &app.session.last_gradient),
                     _ => widgets::paint_chip(ui, r, &Paint::None),
                 }
-                resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(tip)));
+                resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(tip)));
                 if resp.on_hover_text(tl!(tip)).clicked() {
                     clicked = Some(cmd);
                 }
@@ -602,7 +602,7 @@ fn flyout_body(ui: &mut Ui, t: &Tokens, active: &str, tools: &[String], floating
             let x = egui::Rect::from_min_size(bar.min, vec2(BAR, CLOSE));
             let xr = ui.interact(x, egui::Id::new(("tool-flyout-close", key)), Sense::click());
             icons::paint(ui, "x", x.shrink2(vec2(1.0, 3.0)), if xr.hovered() { t.text_strong } else { t.text });
-            xr.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!("Put back in the toolbar")));
+            xr.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!("Put back in the toolbar")));
             out.close = xr.on_hover_text(tl!("Put back in the toolbar")).clicked();
             egui::Rect::from_min_max(bar.min + vec2(0.0, CLOSE), bar.max)
         } else {
@@ -615,7 +615,7 @@ fn flyout_body(ui: &mut Ui, t: &Tokens, active: &str, tools: &[String], floating
             ui.painter().line_segment([pos2(x, grip.center().y - half), pos2(x, grip.center().y + half)], Stroke::new(0.6, t.text_disabled));
         }
         let tip = if floating { tl!("Drag to move") } else { tl!("Drag to float as a toolbar") };
-        resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tip));
+        resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tip));
         let resp = if resp.dragged() {
             ui.ctx().set_cursor_icon(egui::CursorIcon::Grabbing);
             resp
@@ -651,7 +651,7 @@ fn tool_rows(ui: &mut Ui, t: &Tokens, active: &str, tools: &[String]) -> Option<
         if let Some(sc) = shortcut {
             ui.painter().galley(pos2(r.right() - ROW_END - sc.size().x, r.center().y - sc.size().y / 2.0), sc, color);
         }
-        resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, ui.is_enabled(), is_active, tip(tool)));
+        resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), is_active, tip(tool)));
         if resp.clicked() {
             chosen = Some(tool.id);
         }
@@ -705,7 +705,7 @@ fn tool_strip(ui: &mut Ui, t: &Tokens, active: &str, tools: &[String]) -> Option
         }
         let ir = egui::Rect::from_center_size(r.center(), vec2(18.0, 18.0));
         icons::paint(ui, icons::tool_icon(tool.icon), ir, if active == tool.id { t.text_strong } else { t.icon });
-        resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, ui.is_enabled(), active == tool.id, tip(tool)));
+        resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), active == tool.id, tip(tool)));
         if resp.on_hover_text(tip(tool)).clicked() {
             chosen = Some(tool.id);
         }
@@ -882,7 +882,7 @@ pub(crate) mod tests {
     /// A mouse wheel turn over `at`, scrolling the content up by `dy` points.
     pub(crate) fn wheel(at: Pos2, dy: f32) -> Vec<Event> {
         let unit = egui::MouseWheelUnit::Point;
-        vec![Event::PointerMoved(at), Event::MouseWheel { unit, delta: vec2(0.0, -dy), phase: egui::TouchPhase::Move, modifiers: Default::default() }]
+        vec![Event::PointerMoved(at), Event::MouseWheel { source: egui::MouseWheelSource::Wheel, unit, delta: vec2(0.0, -dy), phase: egui::TouchPhase::Move, modifiers: Default::default() }]
     }
 
     #[test]

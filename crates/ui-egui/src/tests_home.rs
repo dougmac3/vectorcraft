@@ -277,7 +277,7 @@ fn home_scrolls_in_a_short_window() {
     assert!(has(&texts, "Welcome to VectorCraft"), "{texts:?}");
     assert!(!has(&texts, "Community"), "below the fold at first");
     let at = egui::pos2(400.0, 150.0);
-    let wheel = egui::Event::MouseWheel {
+    let wheel = egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
         unit: egui::MouseWheelUnit::Point,
         delta: egui::vec2(0.0, -5000.0),
         phase: egui::TouchPhase::Move,

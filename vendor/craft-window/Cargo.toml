@@ -1,0 +1,15 @@
+# craft-window from storytold/craft-libs at 1f805378 (MIT OR Apache-2.0), moved to egui 0.37 for Fossa Direct.
+[package]
+name = "craft-window"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[features]
+egui = ["dep:egui"]
+
+[dependencies]
+egui = { version = "0.37.0", default-features = false, optional = true }
+
+[target.'cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd", target_os = "netbsd"))'.dependencies]
+wayland-client = "0.31"

@@ -504,7 +504,9 @@ pub fn mono(size: f32) -> FontId {
 /// the families are egui's built-in fonts (and craft-fonts' faces in a build with them), which lack
 /// some symbols the panels show (→ ▾ ● ✓).
 pub fn install_fonts(ctx: &egui::Context) {
-    let mut fonts = FontDefinitions::default();
+    // Inside Fossa the faces are added to the window's own fonts, whose families stay as they are.
+    let hosted = crate::fossa_hosted();
+    let mut fonts = if hosted { ctx.fonts(|f| f.definitions().clone()) } else { FontDefinitions::default() };
     let (ui, semi, mono) = interface_faces(&mut fonts);
     let stack = |fonts: &FontDefinitions, family: FontFamily| fonts.families.get(&family).cloned().unwrap_or_default();
     let (fallback, monospace) = (stack(&fonts, FontFamily::Proportional), stack(&fonts, FontFamily::Monospace));
@@ -512,7 +514,9 @@ pub fn install_fonts(ctx: &egui::Context) {
     let mono_fallback = if mono.is_empty() { monospace } else { fallback.clone() };
     let family =
         |faces: Vec<&str>, fallback: &[String]| -> Vec<String> { faces.into_iter().map(str::to_owned).chain(fallback.iter().cloned()).collect() };
-    fonts.families.insert(FontFamily::Proportional, family(ui.clone(), &fallback));
+    if !hosted {
+        fonts.families.insert(FontFamily::Proportional, family(ui.clone(), &fallback));
+    }
     fonts.families.insert(FontFamily::Name(FONT_UI_SEMIBOLD.into()), family(semi, &fallback));
     fonts.families.insert(FontFamily::Name(FONT_UI.into()), family(ui, &fallback));
     fonts.families.insert(FontFamily::Name(FONT_MONO.into()), family(mono, &mono_fallback));

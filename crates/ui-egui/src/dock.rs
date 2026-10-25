@@ -119,7 +119,7 @@ fn panel_icon(app: &mut VectorcraftApp, ui: &mut Ui, id: &'static str, label: &s
     // Its own id: the icons below it move up when it floats, and mustn't take over its drag.
     let (_, rect) = ui.allocate_space(vec2(30.0, 30.0));
     let resp = widgets::paint_icon_button(ui, ui.interact(rect, ui.id().with(("panel-icon", id)), Sense::click_and_drag()), icon, label, open);
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::SelectableLabel, ui.is_enabled(), open, tl!(label)));
+    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), open, tl!(label)));
     if resp.clicked() {
         app.ui.open_panel = if open { None } else { Some(id.to_string()) };
     }
@@ -387,7 +387,7 @@ pub(crate) fn panel_tabs(
             ui.painter().rect_stroke(rect.shrink(2.0), 0.0, Stroke::new(1.0, t.accent), egui::StrokeKind::Inside);
         }
         icons::paint(ui, "chevrons-right", Rect::from_center_size(rect.center(), vec2(12.0, 12.0)).intersect(rect), t.text);
-        resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!("Panels")));
+        resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!("Panels")));
         let resp = resp.on_hover_text(tl!("Panels"));
         egui::Popup::menu(&resp).show(|ui| {
             widgets::menu_scroll(ui, |ui| {

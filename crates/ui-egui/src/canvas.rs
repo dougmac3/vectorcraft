@@ -3214,7 +3214,7 @@ fn recent_row(ui: &mut Ui, path: &str) -> egui::Response {
             ui.painter().galley(egui::pos2(folder_x, rect.center().y - folder_galley.size().y / 2.0), folder_galley, t.text_dim);
         }
     }
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, &name));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, &name));
     resp.on_hover_text(path).on_hover_cursor(egui::CursorIcon::PointingHand)
 }
 
@@ -6280,7 +6280,7 @@ mod tests {
         outlines(&mut app, vec![], 0.0);
         let at = app.canvas_rect.unwrap().center();
         assert!(outlines(&mut app, vec![egui::Event::PointerMoved(at)], 0.016) > 0, "the art under the resting pointer is highlighted");
-        let wheel = |dy: f32| egui::Event::MouseWheel {
+        let wheel = |dy: f32| egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
             unit: egui::MouseWheelUnit::Point,
             delta: vec2(0.0, dy),
             phase: egui::TouchPhase::Move,
@@ -6875,7 +6875,7 @@ mod tests {
         let at = rect.center() + vec2(60.0, 40.0);
         frame(&mut app, &ctx, vec![egui::Event::PointerMoved(at)]);
         let under = |app: &VectorcraftApp| Xf::new(rect, app.view().unwrap()).to_doc(at);
-        let wheel = egui::Event::MouseWheel {
+        let wheel = egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
             unit: egui::MouseWheelUnit::Point,
             delta: vec2(0.0, -60.0),
             phase: egui::TouchPhase::Move,
@@ -6941,7 +6941,7 @@ mod tests {
         frame(&mut app, &ctx, vec![primary(a, true)]);
         frame(&mut app, &ctx, vec![egui::Event::PointerMoved(b)]);
         let before = *app.view().unwrap();
-        let wheel = egui::Event::MouseWheel {
+        let wheel = egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
             unit: egui::MouseWheelUnit::Point,
             delta: vec2(0.0, -40.0),
             phase: egui::TouchPhase::Move,
@@ -9168,7 +9168,7 @@ mod tests {
             let before = on_screen(&app, p);
             let (track, _, _) = scroll_bar(&mut app, k);
             let at = track.center();
-            let wheel = egui::Event::MouseWheel {
+            let wheel = egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
                 unit: egui::MouseWheelUnit::Point,
                 delta: vec2(0.0, -30.0),
                 phase: egui::TouchPhase::Move,

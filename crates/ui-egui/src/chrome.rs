@@ -138,6 +138,10 @@ pub fn window_title(app: &VectorcraftApp) -> String {
 /// Keep the OS window title (and the taskbar / Alt-Tab entry) on the active file. Sends
 /// `ViewportCommand::Title` only when the title changed since the last frame.
 pub fn sync_window_title(app: &mut VectorcraftApp, ctx: &egui::Context) {
+    // Inside Fossa the window and its title are Fossa's.
+    if crate::fossa_hosted() {
+        return;
+    }
     let want = window_title(app);
     if app.last_window_title != want {
         app.last_window_title = want.clone();
@@ -677,7 +681,7 @@ fn artboard_list(app: &VectorcraftApp, ui: &mut Ui, cur: usize) -> Option<usize>
                         );
                         ui.painter().galley(egui::pos2(name_start, r.center().y - name.size().y / 2.0), name, t.text);
                         resp.widget_info(|| {
-                            egui::WidgetInfo::selected(egui::WidgetType::SelectableLabel, true, i == cur, format!("{}  {}", i + 1, board.name))
+                            egui::WidgetInfo::selected(egui::Role::Button, true, i == cur, format!("{}  {}", i + 1, board.name))
                         });
                         if resp.clicked() {
                             chosen = Some(i);
@@ -908,7 +912,7 @@ fn status_field(ui: &mut Ui, id: &str, rect: egui::Rect, text: String, font: egu
     let elided = galley.elided;
     ui.painter().with_clip_rect(ui.clip_rect().intersect(rect)).galley(at, galley, color);
     let response = ui.interact(rect, ui.id().with(("status-field", id)), Sense::hover());
-    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Label, true, &text));
+    response.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Label, true, &text));
     if elided {
         response.on_hover_text(text);
     }
@@ -1728,7 +1732,7 @@ mod tests {
         let shown = rows(&status_click(&mut app, &ctx, field.center()));
         assert!((1..=12).contains(&shown.len()), "{} rows laid out", shown.len());
         let active = shown.iter().find(|(s, _)| s == "Artboard 700").map(|(_, r)| *r).expect("the active artboard's row in view");
-        let swipe = |phase, dy| egui::Event::MouseWheel {
+        let swipe = |phase, dy| egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
             unit: egui::MouseWheelUnit::Point,
             delta: egui::vec2(0.0, dy),
             phase,

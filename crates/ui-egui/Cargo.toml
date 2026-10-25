@@ -46,6 +46,10 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }
 
+# The Fossa Direct desk (src/fossa_native.rs): the host's eframe frame and wgpu state.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+eframe = { workspace = true, features = ["wgpu"] }
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # `now_ms` (src/lib.rs) reads the page's `performance.now()` with this crate in the web build. It is
 # MIT OR Apache-2.0 and already in the build through eframe.
@@ -58,7 +62,9 @@ web-time = "1"
 rustix = { workspace = true, features = ["std", "process"] }
 
 [dev-dependencies]
-egui_kittest = { workspace = true, features = ["wgpu", "snapshot"] }
+egui_kittest = { workspace = true, features = ["wgpu", "snapshot", "eframe"] }
+# examples/fossa_host.rs: a window to host the desk in.
+eframe = { workspace = true, features = ["wgpu", "default_fonts", "wayland", "x11"] }
 vectorcraft-testkit = { workspace = true }
 # A variable font built in code (no font file is committed).
 vectorcraft-text = { workspace = true, features = ["test-fonts"] }

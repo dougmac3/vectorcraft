@@ -41,7 +41,7 @@ pub(super) fn body(app: &VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) {
             });
             let (r, _) = ui.allocate_exact_size(vec2(88.0, 24.0), Sense::hover());
             let response = ui.interact(r, Id::new("revolve-reset-all"), Sense::click());
-            response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!("Reset all")));
+            response.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!("Reset all")));
             if response.hovered() {
                 ui.painter().rect_filled(r, 3.0, t.hover);
             }
@@ -573,7 +573,7 @@ fn dot(ui: &egui::Ui, p: Pos2, changed: bool) {
 fn reset_dot(ui: &mut egui::Ui, key: &str, changed: bool, default: &str) -> bool {
     let (r, _) = ui.allocate_exact_size(vec2(24.0, 24.0), Sense::hover());
     let response = ui.interact(r, Id::new(("revolve-reset", key)), Sense::click());
-    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!("Reset to default")));
+    response.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!("Reset to default")));
     if response.hovered() {
         ui.painter().rect_filled(r, 3.0, Tokens::get(ui.ctx()).hover);
     }

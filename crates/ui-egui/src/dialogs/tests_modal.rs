@@ -159,7 +159,7 @@ fn a_plug_in_dialog_of_many_settings_fits_the_window() {
             }
             assert!(shown(&texts, &last).is_none(), "{kind}: {last} is out of view at first");
             let over = shown(&texts, "Setting0:").unwrap().center();
-            let wheel = Event::MouseWheel {
+            let wheel = Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
                 unit: egui::MouseWheelUnit::Line,
                 delta: vec2(0.0, -200.0),
                 phase: egui::TouchPhase::Move,

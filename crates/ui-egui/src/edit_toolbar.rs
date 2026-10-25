@@ -436,7 +436,7 @@ pub(crate) fn drawer(app: &mut VectorcraftApp, ctx: &egui::Context) {
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     let (r, menu) = ui.allocate_exact_size(vec2(18.0, 18.0), Sense::click());
                     icons::paint(ui, "menu", r.shrink(1.0), if menu.hovered() { t.text_strong } else { t.text_dim });
-                    menu.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, tl!("Drawer menu")));
+                    menu.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, tl!("Drawer menu")));
                     let menu = menu.on_hover_text(tl!("Drawer menu"));
                     egui::Popup::menu(&menu).id(menu_id()).show(|ui| {
                         ui.set_min_width(160.0);
@@ -530,7 +530,7 @@ pub(crate) fn drawer(app: &mut VectorcraftApp, ctx: &egui::Context) {
 /// and Coloring are drawn as small copies of those controls, the modes with their buttons' icons.
 fn show_button(ui: &mut Ui, t: &Tokens, name: &str, label: &str, icon: &str, on: bool) -> bool {
     let (r, resp) = ui.allocate_exact_size(vec2(26.0, 26.0), Sense::click());
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Checkbox, true, on, tl!(label)));
+    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::CheckBox, true, on, tl!(label)));
     let p = ui.painter();
     if on {
         p.rect_filled(r, 3.0, t.tool_active);

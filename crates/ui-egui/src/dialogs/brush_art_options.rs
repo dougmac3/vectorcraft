@@ -439,7 +439,7 @@ fn tip_sample(ui: &mut egui::Ui, def: &Value, ty: &str, method: Colorization, na
         ui.painter().image(tex.id(), r, egui::Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0)), Color32::WHITE);
     }
     ui.painter().rect_stroke(r, 0.0, Stroke::new(1.0, t.input_border), egui::StrokeKind::Inside);
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Image, true, name));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Image, true, name));
 }
 
 /// A document of `w` × `h` showing brush definition `def` (of type `ty`) with colorization

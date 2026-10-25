@@ -145,7 +145,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
             let on = stops.get(sel).map_or(align_idx == i, |s| s.align == *a);
             let tip = align_name(*a, vertical);
             let resp = ui.add(egui::Button::new(egui::RichText::new(*label).size(13.0)).selected(on).min_size(vec2(28.0, 24.0)));
-            resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, ui.is_enabled(), on, tip));
+            resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), on, tip));
             if resp.on_hover_text(tip).clicked() {
                 align_idx = i;
                 set_pstate(ui.ctx(), "tabs-align", i);

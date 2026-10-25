@@ -647,7 +647,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     let released = ui.input(|i| i.pointer.any_released());
     // Layers dragged into the empty space under the last row go below the bottom layer (there is
     // no row there to take the drop).
-    let below = list_rect.top() - scrolled.inner.state.offset.y + list.len() as f32 * view.h;
+    let below = list_rect.top() - scrolled.inner.state.clamped_offset().y + list.len() as f32 * view.h;
     if query.is_empty()
         && !app.ui.layers_filter.is_on()
         && let Some(drag) = egui::DragAndDrop::payload::<LayersDrag>(ui.ctx())

@@ -1,0 +1,13 @@
+# craft-ui from storytold/craft-libs at 5c874d51 (MIT OR Apache-2.0), moved to egui 0.37 for Fossa Direct.
+[package]
+name = "craft-ui"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+egui = { version = "0.37.0", default-features = false }
+serde = { version = "1", features = ["derive"], optional = true }
+
+[features]
+serde = ["dep:serde"]

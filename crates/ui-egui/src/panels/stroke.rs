@@ -631,7 +631,7 @@ mod tests {
             frame(&mut app, vec![button(false)]);
             frame(&mut app, vec![]);
             for _ in 0..4 {
-                let notch = Event::MouseWheel {
+                let notch = Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
                     unit: MouseWheelUnit::Line,
                     delta: vec2(0.0, -1.0),
                     phase: egui::TouchPhase::Move,

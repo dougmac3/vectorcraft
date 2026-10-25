@@ -150,7 +150,8 @@ pub fn apply_runtime(app: &mut VectorcraftApp, ctx: &egui::Context) {
         ctx.data_mut(|d| d.insert_temp(id, Some(want)));
     }
     let z = app.session.prefs.ui_scaling.clamp(0.75, 2.0) as f32;
-    if (ctx.zoom_factor() - z).abs() > 1e-3 {
+    // Inside Fossa the window's zoom is Fossa's.
+    if !crate::fossa_hosted() && (ctx.zoom_factor() - z).abs() > 1e-3 {
         ctx.set_zoom_factor(z);
     }
     let touch = ctx.input(|i| i.has_touch_screen());

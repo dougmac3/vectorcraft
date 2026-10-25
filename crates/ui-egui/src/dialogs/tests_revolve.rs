@@ -223,7 +223,7 @@ fn advanced_visibility_option_is_saved_resettable_and_leaves_preview_geometry_co
     let panel = h.ctx.memory(|m| m.area_rect(Id::new(("dialog", "effect")).with("revolve"))).unwrap();
     h.frame(vec![
         Event::PointerMoved(panel.center()),
-        Event::MouseWheel {
+        Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
             unit: egui::MouseWheelUnit::Point,
             delta: vec2(0.0, -220.0),
             phase: egui::TouchPhase::Move,

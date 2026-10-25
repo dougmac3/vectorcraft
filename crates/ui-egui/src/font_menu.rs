@@ -504,7 +504,7 @@ fn list(ui: &mut Ui, state_id: egui::Id, st: &mut MenuState, current: &str, samp
             }
         }
     });
-    st.scrolled = shown.state.offset.y;
+    st.scrolled = shown.state.clamped_offset().y;
     if let Some(f) = toggled {
         if st.expanded.contains(&f) {
             st.expanded.retain(|e| *e != f);

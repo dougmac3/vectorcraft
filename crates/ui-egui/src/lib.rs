@@ -36,6 +36,9 @@ pub mod i18n;
 pub mod icon_data;
 pub mod icons;
 pub mod io;
+/// VectorCraft as a desk inside Fossa Direct's window.
+#[cfg(not(target_arch = "wasm32"))]
+pub mod fossa_native;
 pub mod menus;
 pub mod native_menu;
 pub mod opening;
@@ -461,6 +464,8 @@ pub struct VectorcraftApp {
     /// Window captures asked for and not answered yet.
     pending_screenshots: Vec<PendingScreenshot>,
     queued_screenshots: Vec<(u64, f64, u32)>,
+    /// Screenshots the window took for `queued_screenshots`, by token (egui 0.37 answers through a callback).
+    taken_screenshots: std::sync::Arc<std::sync::Mutex<Vec<(u64, std::sync::Arc<egui::ColorImage>)>>>,
     screenshot_token: u64,
     /// Synthetic input events (from the control channel) injected one step per frame.
     pub synthetic: Vec<egui::Event>,
@@ -621,6 +626,7 @@ impl VectorcraftApp {
             control_rx: None,
             pending_screenshots: vec![],
             queued_screenshots: vec![],
+            taken_screenshots: Default::default(),
             screenshot_token: 0,
             synthetic: vec![],
             styled: false,
@@ -1043,7 +1049,11 @@ impl VectorcraftApp {
         self.queued_screenshots.retain_mut(|(token, at, frames)| {
             *frames += 1;
             if now >= *at && *frames >= 3 {
-                ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot(egui::UserData::new(*token)));
+                let (token, taken, wake) = (*token, self.taken_screenshots.clone(), ctx.clone());
+                ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot(egui::ScreenshotCallback::new(move |image| {
+                    taken.lock().unwrap_or_else(|e| e.into_inner()).push((token, image));
+                    wake.request_repaint();
+                })));
                 false
             } else {
                 true
@@ -1054,23 +1064,11 @@ impl VectorcraftApp {
         }
     }
 
-    fn collect_screenshots(&mut self, ctx: &egui::Context) {
+    fn collect_screenshots(&mut self, _ctx: &egui::Context) {
         if self.pending_screenshots.is_empty() {
             return;
         }
-        let events: Vec<_> = ctx.input(|i| {
-            i.raw
-                .events
-                .iter()
-                .filter_map(|e| match e {
-                    egui::Event::Screenshot { user_data, image, .. } => {
-                        let token = user_data.data.as_ref().and_then(|d| d.downcast_ref::<u64>()).copied()?;
-                        Some((token, image.clone()))
-                    }
-                    _ => None,
-                })
-                .collect()
-        });
+        let events: Vec<_> = std::mem::take(&mut *self.taken_screenshots.lock().unwrap_or_else(|e| e.into_inner()));
         for (token, image) in events {
             if let Some(i) = self.pending_screenshots.iter().position(|p| p.token == token) {
                 let p = self.pending_screenshots.remove(i);
@@ -1350,7 +1348,8 @@ impl VectorcraftApp {
         // The window's close button (or the system quitting the app) asks about unsaved documents,
         // once the saves running in the background are done. Not while a file dialog's sheet is on
         // the window: what asked for it runs again when it answers.
-        if ctx.input(|i| i.viewport().close_requested()) {
+        // Inside Fossa the window is Fossa's: its close never waits on this desk.
+        if !fossa_hosted() && ctx.input(|i| i.viewport().close_requested()) {
             background::wait_all(self);
             if self.file_sheet_open() {
                 ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);

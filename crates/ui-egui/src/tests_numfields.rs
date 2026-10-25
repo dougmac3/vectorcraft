@@ -558,7 +558,7 @@ fn arrow_keys_step_plain_fields() {
 
 /// A wheel turn of `dy` (`unit`s, up positive) with `modifiers`, the pointer at `at`.
 fn wheel(at: Pos2, unit: egui::MouseWheelUnit, dy: f32, modifiers: Modifiers) -> Vec<Event> {
-    vec![Event::PointerMoved(at), Event::MouseWheel { unit, delta: vec2(0.0, dy), phase: egui::TouchPhase::Move, modifiers }]
+    vec![Event::PointerMoved(at), Event::MouseWheel { source: egui::MouseWheelSource::Wheel, unit, delta: vec2(0.0, dy), phase: egui::TouchPhase::Move, modifiers }]
 }
 
 /// The mouse wheel over a focused numeric field steps it as ↑/↓ do (#485): a notch a step, Shift
@@ -611,7 +611,7 @@ fn the_wheel_scrolls_the_panel_unless_over_the_focused_field() {
                 ui.add_space(600.0);
                 v
             });
-            offset.set(out.state.offset.y);
+            offset.set(out.state.clamped_offset().y);
             out.inner
         };
         f.frame(vec![], &draw);

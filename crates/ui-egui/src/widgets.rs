@@ -42,7 +42,7 @@ pub fn flat_button(ui: &mut Ui, text: &str, width: f32) -> Response {
     ui.painter().rect_filled(rect, CornerRadius::same(5), t.button);
     flat_fill(ui, rect, &resp);
     ui.painter().with_clip_rect(rect).text(rect.center(), egui::Align2::CENTER_CENTER, tl!(text), egui::FontId::proportional(12.5), t.text_strong);
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(text)));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(text)));
     resp
 }
 
@@ -56,7 +56,7 @@ pub fn flat_button_fit(ui: &mut Ui, text: &str, min_width: f32) -> Response {
     ui.painter().rect_filled(rect, CornerRadius::same(5), t.button);
     flat_fill(ui, rect, &resp);
     ui.painter().with_clip_rect(rect).text(rect.center(), egui::Align2::CENTER_CENTER, tl!(text), egui::FontId::proportional(12.5), t.text_strong);
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(text)));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(text)));
     resp
 }
 
@@ -92,11 +92,11 @@ pub fn split_button_named(ui: &mut Ui, text: &str, arrow_tip: &str, width: f32) 
         t.text_strong,
     );
     icons::paint(ui, "chevron-down", Rect::from_center_size(arrow_rect.center(), vec2(12.0, 12.0)), t.text_dim);
-    main.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(text)));
+    main.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(text)));
     if arrow_tip.is_empty() {
         return (main, arrow);
     }
-    arrow.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(arrow_tip)));
+    arrow.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(arrow_tip)));
     (main, arrow.on_hover_text(tl!(arrow_tip)))
 }
 
@@ -143,7 +143,7 @@ fn primary_button_sized(ui: &mut Ui, text: &str, enabled: bool, min_width: f32) 
         ui.painter().rect_stroke(rect, CornerRadius::same(6), egui::Stroke::new(1.0, t.button_border), egui::StrokeKind::Inside);
     }
     ui.painter().galley(rect.center() - galley.size() / 2.0, galley, fg);
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled && ui.is_enabled(), tl!(text)));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, enabled && ui.is_enabled(), tl!(text)));
     resp
 }
 
@@ -160,7 +160,7 @@ pub(crate) fn secondary_button_width(ui: &mut Ui, text: &str, min_width: f32) ->
     let (rect, resp) = ui.allocate_exact_size(vec2(w.max(min_width), 28.0), Sense::click());
     ui.painter().rect_filled(rect, CornerRadius::same(6), if resp.hovered() { t.hover } else { t.button });
     ui.painter().galley(rect.center() - galley.size() / 2.0, galley, t.text);
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(text)));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(text)));
     resp
 }
 
@@ -189,7 +189,7 @@ pub fn section_toggle_name(ui: &mut Ui, text: &str, open: bool) -> Response {
     let chevron = Rect::from_center_size(pos2(rect.left() + 8.0, rect.center().y), vec2(12.0, 12.0));
     icons::paint(ui, if open { "chevron-down" } else { "chevron-right" }, chevron, if resp.hovered() { t.text_strong } else { t.icon });
     ui.painter().text(pos2(rect.left() + 18.0, rect.center().y), egui::Align2::LEFT_CENTER, text, theme::semibold(12.5), t.text);
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::CollapsingHeader, true, open, text));
+    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::DisclosureTriangle, true, open, text));
     resp.on_hover_cursor(egui::CursorIcon::PointingHand)
 }
 
@@ -872,7 +872,7 @@ pub fn chip_button_named(ui: &mut Ui, size: f32, chevron: bool, tip: &str, draw:
     if tip.is_empty() {
         return resp;
     }
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(tip)));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(tip)));
     resp.on_hover_text(tl!(tip))
 }
 
@@ -948,11 +948,11 @@ pub fn fill_stroke_proxy(ui: &mut Ui, fill: &Paint, stroke: &Paint, mixed: (bool
     };
     let on = ui.is_enabled();
     fill_resp
-        .widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, on, fill_active, tl!("Fill (X), double-click for the Color Picker")));
+        .widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, on, fill_active, tl!("Fill (X), double-click for the Color Picker")));
     stroke_resp
-        .widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, on, !fill_active, tl!("Stroke (X), double-click for the Color Picker")));
-    swap.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, on, tl!("Swap Fill and Stroke (Shift+X)")));
-    def.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, on, tl!("Default Fill and Stroke (D)")));
+        .widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, on, !fill_active, tl!("Stroke (X), double-click for the Color Picker")));
+    swap.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, on, tl!("Swap Fill and Stroke (Shift+X)")));
+    def.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, on, tl!("Default Fill and Stroke (D)")));
     ProxyClicks {
         fill: fill_resp.on_hover_text(tl!("Fill (X), double-click for the Color Picker")).clicked(),
         stroke: stroke_resp.on_hover_text(tl!("Stroke (X), double-click for the Color Picker")).clicked(),
@@ -1084,7 +1084,7 @@ fn searchable_combo<R>(ui: &mut Ui, id: egui::Id, current: &str, width: f32, lis
     resp.widget_info(|| egui::WidgetInfo {
         enabled: ui.is_enabled(),
         current_text_value: Some(current.to_owned()),
-        ..egui::WidgetInfo::new(egui::WidgetType::ComboBox)
+        ..egui::WidgetInfo::new(egui::Role::ComboBox)
     });
     if ui.is_rect_visible(rect) {
         let v = if open { ui.visuals().widgets.open } else { *ui.style().interact(&resp) };
@@ -1301,7 +1301,7 @@ pub fn opacity_blend(
         let (r, resp) = ui.allocate_exact_size(vec2(18.0, 26.0), if enabled { Sense::click() } else { Sense::hover() });
         ui.painter().rect_stroke(r, 2, Stroke::new(1.0, t.input_border), StrokeKind::Inside);
         icons::paint(ui, "chevron-right", r.shrink2(vec2(3.0, 7.0)), if enabled { t.icon } else { t.text_disabled });
-        resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled && ui.is_enabled(), tl!("Opacity")));
+        resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, enabled && ui.is_enabled(), tl!("Opacity")));
         egui::Popup::menu(&resp).close_behavior(egui::PopupCloseBehavior::CloseOnClickOutside).show(|ui| {
             let mut o = opacity.unwrap_or(1.0) * 100.0;
             let r = slider(ui, egui::Slider::new(&mut o, 0.0..=100.0).show_value(false));
@@ -1347,7 +1347,7 @@ pub fn reference_point(ui: &mut Ui, current: usize) -> Option<usize> {
     for (i, name) in names.into_iter().enumerate() {
         let r = Rect::from_center_size(centre(i), Vec2::splat(sq));
         let resp = ui.interact(r.expand(2.0), ui.id().with(("refpt", i)), Sense::click());
-        resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::RadioButton, ui.is_enabled(), i == current, name));
+        resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::RadioButton, ui.is_enabled(), i == current, name));
         if resp.clicked() {
             out = Some(i);
         }
@@ -1396,7 +1396,7 @@ pub fn toggle_icon(ui: &mut Ui, on_icon: &str, on: bool, size: f32, tip: &str) -
     } else if resp.hovered() {
         icons::paint(ui, on_icon, rect.shrink(size * 0.2), t.text_disabled);
     }
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, ui.is_enabled(), on, tl!(tip)));
+    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), on, tl!(tip)));
     resp.on_hover_text(tl!(tip)).clicked()
 }
 
@@ -1418,7 +1418,7 @@ pub fn icon_button_enabled(ui: &mut Ui, icon: &str, tip: &str, selected: bool, e
 /// What screen readers get for an icon button: a button called `name` (already translated),
 /// reported as pressed while `selected` and with no pressed state otherwise.
 pub(crate) fn icon_button_info(enabled: bool, selected: bool, name: &str) -> egui::WidgetInfo {
-    egui::WidgetInfo { selected: selected.then_some(true), ..egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled, name) }
+    egui::WidgetInfo { selected: selected.then_some(true), ..egui::WidgetInfo::labeled(egui::Role::Button, enabled, name) }
 }
 
 /// A slider whose rail shows, filled up to the handle: the theme's widget fill matches the panel
@@ -1454,7 +1454,7 @@ pub fn link_label(ui: &mut Ui, text: &str) -> Response {
         ui.painter().line_segment([pos2(x, y), pos2((x + 1.0).min(rect.right()), y)], Stroke::new(1.0, t.text_dim));
         x += 2.5;
     }
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(text)));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!(text)));
     resp
 }
 
@@ -1532,8 +1532,8 @@ fn check_row_named(ui: &mut Ui, text: &str, name: &str, value: Option<bool>, ena
         Some(false) => {}
     }
     resp.widget_info(|| match value {
-        Some(on) => egui::WidgetInfo::selected(egui::WidgetType::Checkbox, enabled && ui.is_enabled(), on, name),
-        None => egui::WidgetInfo::labeled(egui::WidgetType::Checkbox, enabled && ui.is_enabled(), name),
+        Some(on) => egui::WidgetInfo::selected(egui::Role::CheckBox, enabled && ui.is_enabled(), on, name),
+        None => egui::WidgetInfo::labeled(egui::Role::CheckBox, enabled && ui.is_enabled(), name),
     });
     (enabled && resp.clicked(), resp)
 }
@@ -1558,7 +1558,7 @@ fn radio_row(ui: &mut Ui, text: &str, name: &str, selected: bool, enabled: bool)
     if selected {
         ui.painter().circle_filled(c, 2.5, if enabled { Color32::WHITE } else { t.text_disabled });
     }
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::RadioButton, enabled && ui.is_enabled(), selected, name));
+    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::RadioButton, enabled && ui.is_enabled(), selected, name));
     enabled && resp.clicked()
 }
 
@@ -1678,7 +1678,7 @@ fn spin_generic(
             ui.painter().line_segment([m + vec2(-3.0, -d), m + vec2(0.0, d)], Stroke::new(1.2, c));
             ui.painter().line_segment([m + vec2(0.0, d), m + vec2(3.0, -d)], Stroke::new(1.2, c));
         }
-        sresp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled, tl!("Step up or down")));
+        sresp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, enabled, tl!("Step up or down")));
         // A blank field (values that differ) has nothing to step from.
         if sresp.clicked()
             && let Some(p) = sresp.interact_pointer_pos()
@@ -1792,7 +1792,7 @@ fn slider_info(ui: &Ui, resp: &Response, name: &str, shown: Option<SliderValue>)
     }
     let enabled = ui.is_enabled();
     let Some(s) = shown else {
-        resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Slider, enabled, name));
+        resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Slider, enabled, name));
         return;
     };
     resp.widget_info(|| egui::WidgetInfo { current_text_value: s.text.clone(), ..egui::WidgetInfo::slider(enabled, s.value, name) });
@@ -2444,7 +2444,7 @@ pub fn harmony_wheel(ui: &mut Ui, id: &str, size: f32, colors: &[Color], base: O
             let h = (-dv.y).atan2(dv.x).to_degrees().rem_euclid(360.0);
             out.moved = Some((i, [Some(h), Some((dv.length() / r).clamp(0.0, 1.0)), None]));
         }
-        resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Slider, ui.is_enabled(), tl!("Color wheel")));
+        resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Slider, ui.is_enabled(), tl!("Color wheel")));
     });
     ui.add_space(6.0);
     ui.horizontal(|ui| {
@@ -2484,7 +2484,7 @@ pub fn tab_bar(ui: &mut Ui, tabs: &[&str], current: usize) -> Option<usize> {
                     t.accent,
                 );
             }
-            resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::SelectableLabel, ui.is_enabled(), sel, tl!(tab)));
+            resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), sel, tl!(tab)));
             if resp.clicked() {
                 clicked = Some(i);
             }
@@ -2511,7 +2511,7 @@ pub fn orientation_button(ui: &mut Ui, landscape: bool, selected: bool, tip: &st
     ui.painter().add(egui::Shape::convex_polygon(outline.clone(), fill, Stroke::new(1.2, color)));
     let corner = [page.right_top() - vec2(fold, 0.0), page.right_top() + vec2(-fold, fold), page.right_top() + vec2(0.0, fold)];
     ui.painter().add(egui::Shape::line(corner.to_vec(), Stroke::new(1.2, if selected { t.panel } else { color })));
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, ui.is_enabled(), selected, tl!(tip)));
+    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), selected, tl!(tip)));
     resp.on_hover_text(tl!(tip)).clicked()
 }
 
@@ -2557,7 +2557,7 @@ pub fn layout_button(ui: &mut Ui, tiles: &[(u8, u8)], selected: bool, tip: &str)
         ui.painter().add(egui::Shape::line(path, Stroke::new(1.2, color)));
         ui.painter().add(egui::Shape::convex_polygon(head, color, Stroke::NONE));
     }
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, enabled, selected, tip));
+    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, enabled, selected, tip));
     resp.on_hover_text(tip).clicked()
 }
 
@@ -2591,7 +2591,7 @@ fn chevron_cell(ui: &mut Ui, h: f32) -> Response {
         t.icon
     };
     icons::paint(ui, "chevron-down", Rect::from_center_size(dr.center(), Vec2::splat(12.0)), c);
-    dresp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!("Presets")));
+    dresp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), tl!("Presets")));
     dresp
 }
 

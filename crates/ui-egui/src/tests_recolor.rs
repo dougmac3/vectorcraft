@@ -428,7 +428,7 @@ fn the_last_edit_color_can_be_selected_edited_and_undone() {
         assert!(!h.ctx.content_rect().contains_rect(*chips(&h).last().unwrap()), "the last chip starts out of view");
         h.input_mut().events.extend([
             Event::PointerMoved(first.center()),
-            Event::MouseWheel {
+            Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
                 unit: egui::MouseWheelUnit::Point,
                 delta: vec2(0.0, -10000.0),
                 phase: egui::TouchPhase::Move,

@@ -1238,7 +1238,7 @@ fn icon_rail(app: &mut VectorcraftApp, ui: &mut egui::Ui) {
                         let response = ui.interact(rect, ui.id().with(("panel-icon", id)), egui::Sense::click_and_drag());
                         let open = app.ui.open_panel.as_deref() == Some(id);
                         let response = crate::widgets::paint_icon_button(ui, response, icon, tl!(label), open);
-                        response.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::SelectableLabel, ui.is_enabled(), open, tl!(label)));
+                        response.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), open, tl!(label)));
                         if response.clicked() {
                             app.ui.open_panel = if app.ui.open_panel.as_deref() == Some(id) { None } else { Some(id.into()) };
                         }

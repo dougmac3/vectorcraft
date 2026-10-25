@@ -1254,7 +1254,7 @@ mod tests {
                         size,
                         vec![
                             egui::Event::PointerMoved(outer.min + vec2(30.0, 80.0)),
-                            egui::Event::MouseWheel {
+                            egui::Event::MouseWheel { source: egui::MouseWheelSource::Wheel,
                                 unit: egui::MouseWheelUnit::Point,
                                 delta: vec2(0.0, -20.0),
                                 phase: egui::TouchPhase::Move,
