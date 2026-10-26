@@ -156,7 +156,7 @@ pub(crate) fn tools_zone_id() -> Id {
 
 /// The area of the floating group whose first panel is `first` (of the set it heads).
 pub fn area_id(first: &str) -> Id {
-    Id::new(("floating-panels", first))
+    crate::salted(Id::new(("floating-panels", first)))
 }
 
 /// The floating group whose first panel is `first`, as last drawn (egui temp memory): in a set,

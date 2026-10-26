@@ -49,6 +49,8 @@ log = { workspace = true }
 # The Fossa Direct desk (src/fossa_native.rs): the host's eframe frame and wgpu state.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 eframe = { workspace = true, features = ["wgpu"] }
+# The desk's Open, Place and folder pickers (src/fossa_native.rs), as apps/vectorcraft shows them.
+rfd = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # `now_ms` (src/lib.rs) reads the page's `performance.now()` with this crate in the web build. It is

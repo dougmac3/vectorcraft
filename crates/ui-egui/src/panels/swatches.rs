@@ -629,7 +629,7 @@ pub(crate) fn drag_preview(app: &VectorcraftApp, ctx: &egui::Context) {
 /// A 16-point chip `draw` paints, following the pointer.
 fn pointer_chip(ctx: &egui::Context, draw: impl FnOnce(&Ui, Rect)) {
     let Some(at) = ctx.pointer_hover_pos() else { return };
-    let area = egui::Area::new(egui::Id::new("swatch-drag-preview")).order(egui::Order::Tooltip).fixed_pos(at + vec2(12.0, 12.0));
+    let area = egui::Area::new(crate::salted(egui::Id::new("swatch-drag-preview"))).order(egui::Order::Tooltip).fixed_pos(at + vec2(12.0, 12.0));
     area.interactable(false).show(ctx, |ui| {
         let (r, _) = ui.allocate_exact_size(vec2(16.0, 16.0), Sense::hover());
         draw(ui, r);

@@ -121,13 +121,13 @@ enum Action {
 fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let Some(mut d) = app.ui.dialog.clone() else { return };
     let t = Tokens::get(ctx);
-    let id = egui::Id::new(("dialog", KIND));
+    let id = crate::salted(egui::Id::new(("dialog", KIND)));
     let b = bounds(app, &mut d);
     let pos = place(app, ctx, id, b);
     // A click anywhere else keeps the result, and the rest of the app doesn't take it.
     let dim = modal::backdrop();
     let outside =
-        egui::Area::new(dim.id).order(dim.order).fixed_pos(Pos2::ZERO).show(ctx, |ui| ui.allocate_rect(ctx.content_rect(), Sense::click())).inner;
+        egui::Area::new(dim.id).order(dim.order).fixed_pos(ctx.content_rect().min).show(ctx, |ui| ui.allocate_rect(ctx.content_rect(), Sense::click())).inner;
     let mut action = None;
     egui::Area::new(id).order(Order::Foreground).fixed_pos(pos).show(ctx, |ui| {
         egui::Frame::NONE

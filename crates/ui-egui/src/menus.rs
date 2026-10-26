@@ -1200,6 +1200,10 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
     if id == "fossa.addToChat" {
         return Some(fossa_add_to_chat(app));
     }
+    // The Layers panel's Add to shot: the row's art, queued for Fossa.
+    if id == "fossa.addToShot" {
+        return Some(crate::fossa_native::add_to_shot(app, p));
+    }
     // The Window menu's panel items toggle like its other checked items (#2361); the panel's
     // other ways in (shortcuts, Show Properties Panel, a tool's double-click) only show it.
     if id == "window.panel" && p.get("toggle").and_then(Value::as_bool) == Some(true) && checked(app, id, p) == Some(true) {
@@ -2540,6 +2544,7 @@ fn fossa_menus(tree: &mut [(&'static str, Vec<Item>)]) {
                 c("Add to Fossa chat", "fossa.addToChat"),
                 Sep,
                 c("New\u{2026}", "file.newDialog"),
+                c("Open\u{2026}", "file.open"),
                 c("Place\u{2026}", "file.place"),
                 c("Export As\u{2026}", "file.exportAs"),
                 Sep,
@@ -4276,7 +4281,7 @@ mod tests {
             let (_, items) = tree.iter().find(|(t, _)| *t == title).unwrap();
             items.iter().filter_map(|i| if let Item::Cmd(_, id, _) = i { Some(*id) } else { None }).collect()
         };
-        assert_eq!(ids("File"), ["fossa.addToChat", "file.newDialog", "file.place", "file.exportAs", "file.close"]);
+        assert_eq!(ids("File"), ["fossa.addToChat", "file.newDialog", "file.open", "file.place", "file.exportAs", "file.close"]);
         for (_, items) in &tree {
             assert!(!items.iter().any(|i| matches!(i, Item::Cmd(_, id, _) if crate::COMMUNITY_LINKS.contains(id))));
             assert!(!matches!(items.first(), Some(Sep)));

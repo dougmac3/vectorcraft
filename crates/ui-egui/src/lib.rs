@@ -75,6 +75,13 @@ pub fn fossa_hosted() -> bool {
     FOSSA_HOSTED.load(std::sync::atomic::Ordering::Relaxed)
 }
 
+/// The id of one of the app's own floating areas (dialogs, flyouts, popovers, drag previews):
+/// inside Fossa, made under the editor's name, since every desk shares the host's egui context and
+/// these ids are not under any of its widgets'; elsewhere `id` itself.
+pub fn salted(id: egui::Id) -> egui::Id {
+    if fossa_hosted() { egui::Id::new("vectorcraft").with(id) } else { id }
+}
+
 /// The Help commands that link to the project and its community (hidden inside Fossa).
 pub const COMMUNITY_LINKS: [&str; 5] = ["help.discord", "help.website", "help.appPage", "help.github", "help.links"];
 
@@ -469,6 +476,9 @@ pub struct VectorcraftApp {
     screenshot_token: u64,
     /// Synthetic input events (from the control channel) injected one step per frame.
     pub synthetic: Vec<egui::Event>,
+    /// Inside Fossa: pictures the person asked to add to the shot (the Layers panel's Add to shot),
+    /// (name, PNG), waiting for [`fossa_native::Desk::take_shot_requests`].
+    pub shot_requests: Vec<(String, Vec<u8>)>,
     styled: bool,
     fonts_ready: bool,
     /// The egui context the UI's textures were uploaded to (0: none yet; see
@@ -624,6 +634,7 @@ impl VectorcraftApp {
             clipboard_publishing: Default::default(),
             pending_url: None,
             control_rx: None,
+            shot_requests: vec![],
             pending_screenshots: vec![],
             queued_screenshots: vec![],
             taken_screenshots: Default::default(),
@@ -1608,5 +1619,32 @@ impl VectorcraftApp {
         }
         self.perf.frame_ms = now_ms() - t0;
         let _ = json!(null);
+    }
+
+    /// Lay out panel `id` (a `window.panel` id) alone in `ui`, with the dialogs it opens: the
+    /// Fossa desk's one-panel view ([`fossa_native::Desk::panel_ui`]).
+    pub(crate) fn panel_ui(&mut self, ui: &mut egui::Ui, id: &str) {
+        let r = vectorcraft_engine::guard::catch_panic(|| {
+            crate::state::sync_zoom_stops_display_print_size(self.session.prefs.display_print_size);
+            let ctx = ui.ctx().clone();
+            if !self.fonts_ready {
+                ctx.request_repaint();
+                return;
+            }
+            widgets::set_dialog_open(&ctx, self.ui.dialog.is_some());
+            scrub::begin_frame(self, &ctx);
+            font_menu::end_stale_preview(self, &ctx);
+            let t = theme::Tokens::get(&ctx);
+            ui.painter().rect_filled(ui.max_rect(), 0.0, t.panel);
+            let (w, h) = (ui.available_width(), ui.available_height());
+            egui::ScrollArea::vertical().id_salt(("panel-alone", id)).auto_shrink([false, false]).show(ui, |ui| dock::panel_body(self, ui, id, w, h - 20.0));
+            dialogs::show(self, &ctx);
+            self.ui_fonts.frame(&ctx);
+            scrub::end_frame(self, &ctx);
+        });
+        if let Err(msg) = r {
+            self.picks.recover();
+            self.status(format!("Internal error: {msg} (please report this bug)"));
+        }
     }
 }

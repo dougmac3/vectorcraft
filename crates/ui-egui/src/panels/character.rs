@@ -501,7 +501,7 @@ pub(crate) fn metrics_grid(app: &mut VectorcraftApp, ui: &mut Ui, id: &str, s: &
                 format(app, json!({"baselineShift": v}));
             }
         });
-        cell(ui, "⟲T", tl!("Character Rotation"), |ui| {
+        cell(ui, "\u{21BA}T", tl!("Character Rotation"), |ui| {
             if let Some(v) = widgets::spin_plain(ui, "ch-rot", s.rotation, "°", 1, fw, 15.0, -360.0, &super::transform::ANGLE_PRESETS) {
                 format(app, json!({"rotation": v}));
             }

@@ -201,7 +201,7 @@ pub(super) fn show(app: &VectorcraftApp, ctx: &egui::Context, d: &mut Dialog) {
             rect = rect.union(label.expand(2.0));
         }
     }
-    egui::Area::new(Id::new("revolve-gizmo-area")).order(egui::Order::Foreground).fixed_pos(rect.min).movable(false).show(ctx, |ui| {
+    egui::Area::new(crate::salted(Id::new("revolve-gizmo-area"))).order(egui::Order::Foreground).fixed_pos(rect.min).movable(false).show(ctx, |ui| {
         ui.set_clip_rect(geometry.xf.rect);
         let response = ui.allocate_rect(rect.intersect(geometry.xf.rect), Sense::drag());
         let options = super::revolve::light_options(d);

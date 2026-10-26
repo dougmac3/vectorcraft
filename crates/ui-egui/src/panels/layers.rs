@@ -1117,6 +1117,11 @@ fn row(ui: &mut Ui, view: &View, item: &Row, out: &mut Out) {
     // Row menu: Collect for Export on this row (or every highlighted row when this is one of them).
     let collect_ids: Vec<u64> = if view.rows.contains(&n.id) { view.rows.iter().map(|id| id.0).collect() } else { vec![n.id.0] };
     resp.context_menu(|ui| {
+        // Inside Fossa: this row's art as a picture for the shot (fossa_native::Desk::take_shot_requests).
+        if crate::fossa_hosted() && widgets::menu_item(ui, "Add to shot", true, false) {
+            out.actions.push(("fossa.addToShot".into(), json!({ "id": n.id.0 })));
+            ui.close();
+        }
         collect_for_export_menu(ui, true, |multiple| {
             out.actions.push(("assets.add".into(), json!({ "ids": collect_ids.clone(), "multiple": multiple })));
         });

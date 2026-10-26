@@ -10,6 +10,7 @@ pub(super) fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
     }
     let mut open = true;
     egui::Window::new(tl!("About VectorCraft"))
+        .id(crate::salted(egui::Id::new("about")))
         .collapsible(false)
         .resizable(false)
         .open(&mut open)

@@ -18,8 +18,9 @@ pub(crate) fn show<R>(ctx: &egui::Context, title: &str, id: Id, nudge: f32, marg
 /// A modal that starts at a chosen offset, then keeps the user's dragged position.
 pub(crate) fn show_at<R>(ctx: &egui::Context, title: &str, id: Id, initial: Vec2, margin: i8, add: impl FnOnce(&mut egui::Ui) -> R) -> Option<R> {
     let t = Tokens::get(ctx);
+    let id = crate::salted(id);
     let dim = backdrop();
-    egui::Area::new(dim.id).order(dim.order).fixed_pos(egui::Pos2::ZERO).show(ctx, |ui| {
+    egui::Area::new(dim.id).order(dim.order).fixed_pos(ctx.content_rect().min).show(ctx, |ui| {
         // Modal, but the canvas isn't dimmed so previews stay readable (as in the reference app).
         ui.allocate_rect(ctx.content_rect(), egui::Sense::click());
     });
@@ -39,7 +40,7 @@ pub(crate) fn show_at<R>(ctx: &egui::Context, title: &str, id: Id, initial: Vec2
 /// The layer of the backdrop behind a modal dialog window, which takes the clicks the rest of
 /// the app would get.
 pub(crate) fn backdrop() -> egui::LayerId {
-    egui::LayerId::new(egui::Order::Middle, Id::new("modal-dim"))
+    egui::LayerId::new(egui::Order::Middle, crate::salted(Id::new("modal-dim")))
 }
 
 /// The dialog's heading, which also moves the window ([`drag_band`]).

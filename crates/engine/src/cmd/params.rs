@@ -34,7 +34,7 @@ pub struct ParamKeys<'a> {
 
 /// The text between the braces of the object `doc` starts with and what follows it, or why it
 /// has none.
-fn object_body(doc: &str) -> std::result::Result<(&str, &str), String> {
+pub fn object_body(doc: &str) -> std::result::Result<(&str, &str), String> {
     // (Named, not written in the `Err`: these are for the tests of the descriptions, not messages
     // the app shows, which the message catalogs would have to translate.)
     let (no_object, not_closed) = ("the description doesn't start with the params object `{…}`", "the params object `{…}` isn't closed");
@@ -61,7 +61,7 @@ fn object_body(doc: &str) -> std::result::Result<(&str, &str), String> {
 }
 
 /// `s` split at each `sep` that is outside brackets, quotes and backticks.
-fn split_top(s: &str, sep: char) -> Vec<&str> {
+pub fn split_top(s: &str, sep: char) -> Vec<&str> {
     let (mut out, mut depth, mut quote, mut start) = (Vec::new(), 0usize, None, 0);
     for (i, c) in s.char_indices() {
         match (quote, c) {

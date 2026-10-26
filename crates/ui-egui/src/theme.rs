@@ -516,6 +516,17 @@ pub fn install_fonts(ctx: &egui::Context) {
         |faces: Vec<&str>, fallback: &[String]| -> Vec<String> { faces.into_iter().map(str::to_owned).chain(fallback.iter().cloned()).collect() };
     if !hosted {
         fonts.families.insert(FontFamily::Proportional, family(ui.clone(), &fallback));
+    } else {
+        // Behind the host's own faces: the symbols the panels draw in its families (check marks,
+        // small triangles, arrows, the Mac key signs) that its fonts lack come from the bundled ones.
+        for host in [FontFamily::Proportional, FontFamily::Monospace] {
+            let stack = fonts.families.entry(host).or_default();
+            for face in ui.iter().chain(&mono) {
+                if !stack.iter().any(|f| f == face) {
+                    stack.push((*face).to_owned());
+                }
+            }
+        }
     }
     fonts.families.insert(FontFamily::Name(FONT_UI_SEMIBOLD.into()), family(semi, &fallback));
     fonts.families.insert(FontFamily::Name(FONT_UI.into()), family(ui, &fallback));

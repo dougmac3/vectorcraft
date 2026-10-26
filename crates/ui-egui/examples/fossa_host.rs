@@ -18,6 +18,10 @@ impl Host {
 }
 
 impl eframe::App for Host {
+    fn raw_input_hook(&mut self, _ctx: &egui::Context, raw: &mut egui::RawInput) {
+        self.desk.raw_input_hook(raw);
+    }
+
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
         let full = ui.max_rect();
         let strip = egui::Rect::from_min_max(full.min, egui::pos2(full.max.x, full.min.y + 36.0));
@@ -29,6 +33,9 @@ impl eframe::App for Host {
                     Ok(png) => format!("grabbed {} bytes", png.len()),
                     Err(e) => e,
                 };
+            }
+            for (name, bytes) in self.desk.take_shot_requests() {
+                self.note = format!("added {name} to the shot ({} bytes)", bytes.len());
             }
             for (name, bytes) in self.desk.take_saved() {
                 self.note = format!("saved {name} ({} bytes)", bytes.len());

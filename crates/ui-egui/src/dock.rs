@@ -446,7 +446,7 @@ pub fn floating_panel(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let tall = (screen.height() - FLYOUT_TOP - 26.0 - 20.0 - 40.0).clamp(160.0, 560.0);
     let mut open = true;
     let mut torn = None;
-    let area = egui::Area::new(egui::Id::new("icon-panel")).order(egui::Order::Foreground).pivot(egui::Align2::RIGHT_TOP);
+    let area = egui::Area::new(crate::salted(egui::Id::new("icon-panel"))).order(egui::Order::Foreground).pivot(egui::Align2::RIGHT_TOP);
     area.fixed_pos(egui::pos2(right, FLYOUT_TOP)).show(ctx, |ui| {
         egui::Frame::popup(ui.style()).fill(t.panel).corner_radius(CornerRadius::same(4)).inner_margin(egui::Margin::ZERO).show(ui, |ui| {
             ui.set_width(width);

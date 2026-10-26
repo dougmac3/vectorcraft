@@ -12,7 +12,7 @@ use crate::VectorcraftApp;
 use crate::theme::Tokens;
 use crate::widgets::{self, menu_item};
 
-const ALIGNS: [(TabAlign, &str); 4] = [(TabAlign::Left, "⇥"), (TabAlign::Center, "⇹"), (TabAlign::Right, "⇤"), (TabAlign::Decimal, ".⇥")];
+const ALIGNS: [(TabAlign, &str); 4] = [(TabAlign::Left, "⇥"), (TabAlign::Center, "\u{2194}"), (TabAlign::Right, "⇤"), (TabAlign::Decimal, ".⇥")];
 
 /// The name of alignment `a`'s button: its tool tip and what screen readers call it. A line of
 /// vertical type runs from top to bottom, so in vertical type a Left stop is named Top-Justified

@@ -5007,6 +5007,7 @@ dependencies = [
  "egui_kittest",
  "image",
  "log",
+ "rfd",
  "rustix 1.1.5",
  "serde",
  "serde_json",

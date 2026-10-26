@@ -102,7 +102,7 @@ pub fn show(app: &mut VectorcraftApp, ctx: &egui::Context) {
         }
         sel = sel.min(n - 1);
     }
-    egui::Area::new(egui::Id::new("palette")).order(egui::Order::Foreground).anchor(egui::Align2::CENTER_TOP, [0.0, 90.0]).show(ctx, |ui| {
+    egui::Area::new(crate::salted(egui::Id::new("palette"))).order(egui::Order::Foreground).anchor(egui::Align2::CENTER_TOP, [0.0, 90.0]).show(ctx, |ui| {
         egui::Frame::popup(ui.style()).fill(t.panel).inner_margin(egui::Margin::same(10)).show(ui, |ui| {
             ui.set_width(520.0);
             let r = ui.add(egui::TextEdit::singleline(&mut app.ui.palette_query).hint_text(tl!("Search commands and tools…")).desired_width(500.0));

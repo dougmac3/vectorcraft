@@ -253,7 +253,7 @@ fn large_preview(app: &VectorcraftApp, ctx: &egui::Context, s: &Shown, i: usize)
     let px = (LARGE * ctx.pixels_per_point()).round() as u32;
     let tex = object_preview(app, ctx, g, look, px).or_else(|| thumb(app, ctx, Paints::of(s.d), g, look, s.preview, LARGE));
     let t = Tokens::get(ctx);
-    let area = egui::Area::new(egui::Id::new("gs-large")).order(egui::Order::Tooltip).fixed_pos(at + vec2(14.0, 14.0));
+    let area = egui::Area::new(crate::salted(egui::Id::new("gs-large"))).order(egui::Order::Tooltip).fixed_pos(at + vec2(14.0, 14.0));
     area.interactable(false).show(ctx, |ui| {
         egui::Frame::popup(ui.style()).show(ui, |ui| {
             let (r, _) = ui.allocate_exact_size(vec2(LARGE, LARGE), Sense::hover());

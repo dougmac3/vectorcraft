@@ -339,7 +339,7 @@ pub(crate) fn toolbar_id() -> egui::Id {
 
 /// The drawer's area.
 pub(crate) fn drawer_id() -> egui::Id {
-    egui::Id::new("tools-drawer")
+    crate::salted(egui::Id::new("tools-drawer"))
 }
 
 /// The heading a tool is listed under: its Basic toolbar group, else one for the tools only the
@@ -628,7 +628,7 @@ fn ghost(ctx: &egui::Context, t: &Tokens) {
     let Some(d) = DragAndDrop::payload::<ToolDrag>(ctx) else { return };
     let (Some(at), Some(tool)) = (ctx.pointer_interact_pos(), tool_info(d.tool)) else { return };
     let r = Rect::from_min_size(at + vec2(8.0, 8.0), vec2(GHOST, GHOST));
-    egui::Area::new(egui::Id::new("tool-drag-ghost")).order(egui::Order::Tooltip).fixed_pos(r.min).interactable(false).show(ctx, |ui| {
+    egui::Area::new(crate::salted(egui::Id::new("tool-drag-ghost"))).order(egui::Order::Tooltip).fixed_pos(r.min).interactable(false).show(ctx, |ui| {
         let (r, _) = ui.allocate_exact_size(r.size(), Sense::hover());
         ui.painter().rect(r, 3.0, t.panel, Stroke::new(1.0, t.accent), StrokeKind::Inside);
         icons::paint(ui, icons::tool_icon(tool.icon), Rect::from_center_size(r.center(), vec2(18.0, 18.0)), t.text_strong);

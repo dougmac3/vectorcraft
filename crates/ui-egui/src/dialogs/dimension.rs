@@ -251,7 +251,7 @@ pub fn floating(app: &mut VectorcraftApp, ctx: &egui::Context) {
         return;
     }
     egui::Window::new(tl!("Dimension Tool"))
-        .id(egui::Id::new("dimension-strip"))
+        .id(crate::salted(egui::Id::new("dimension-strip")))
         .default_pos(egui::pos2(90.0, 120.0))
         .resizable(false)
         .collapsible(false)

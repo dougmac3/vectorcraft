@@ -691,7 +691,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         // In Presentation Mode the pointer is the default one, with no tool cursor.
         let tool_cursor = (app.ui.screen_mode < 3).then(|| view_cursor.or_else(|| hover_cursor(app, mods(m, space), view_info, hover_still)));
         let cur = if let Some(c) = tool_cursor.flatten() {
-            let painter = ui.ctx().layer_painter(egui::LayerId::new(egui::Order::Tooltip, egui::Id::new("tool-cursor")));
+            let painter = ui.ctx().layer_painter(egui::LayerId::new(egui::Order::Tooltip, crate::salted(egui::Id::new("tool-cursor"))));
             // The loaded place cursor carries the file's thumbnail.
             if app.session.tool_id() == "place"
                 && let Some(hp) = ui.input(|i| i.pointer.hover_pos())
@@ -3308,7 +3308,7 @@ fn pixel_region(xf: &Xf) -> Option<[i64; 4]> {
 
 /// The Contextual Task Bar's area.
 fn task_bar_id() -> egui::Id {
-    egui::Id::new("task-bar")
+    crate::salted(egui::Id::new("task-bar"))
 }
 
 /// Where the Contextual Task Bar was last drawn (none while it isn't shown).

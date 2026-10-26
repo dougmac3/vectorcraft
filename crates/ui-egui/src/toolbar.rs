@@ -114,7 +114,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         Some(pos) => {
             // Floating, kept inside the window, its tools scrolling when they don't fit under it.
             let ctx = ui.ctx().clone();
-            let id = egui::Id::new("toolbar-floating");
+            let id = crate::salted(egui::Id::new("toolbar-floating"));
             let screen = ctx.content_rect();
             // Kept on screen by its title bar and first tools: the rest scrolls.
             let size = ctx.memory(|m| m.area_rect(id)).map_or(vec2(w, 160.0), |r| vec2(r.width(), r.height().min(160.0)));
@@ -556,7 +556,7 @@ fn is_floating(app: &VectorcraftApp, key: &str) -> bool {
 
 /// The area of the floating flyout of the group whose first tool is `key`.
 fn floating_area(key: &str) -> egui::Id {
-    egui::Id::new(("tool-floating", key))
+    crate::salted(egui::Id::new(("tool-floating", key)))
 }
 
 /// Bring a floating flyout to the front and flash its border.
@@ -737,7 +737,7 @@ fn flyout(app: &mut VectorcraftApp, ctx: &egui::Context) {
     let t = Tokens::get(ctx);
     let active = app.session.tool_id();
     let mut input = FlyoutInput::default();
-    let resp = egui::Area::new(egui::Id::new("tool-flyout")).order(egui::Order::Foreground).fixed_pos(anchor.right_top() + vec2(8.0, -1.0)).show(
+    let resp = egui::Area::new(crate::salted(egui::Id::new("tool-flyout"))).order(egui::Order::Foreground).fixed_pos(anchor.right_top() + vec2(8.0, -1.0)).show(
         ctx,
         |ui| {
             flyout_frame(&t, false).show(ui, |ui| input = flyout_body(ui, &t, active, &tools, false));
@@ -1159,7 +1159,7 @@ pub(crate) mod tests {
         frame(&mut app, &ctx, 1.05, vec![b(false)]);
         frame(&mut app, &ctx, 1.1, vec![]);
         assert!(app.ui.flyout.is_some(), "the right-click opens the flyout and the same click doesn't close it");
-        let menu = ctx.memory(|m| m.area_rect(egui::Id::new("tool-flyout"))).expect("the flyout is shown");
+        let menu = ctx.memory(|m| m.area_rect(crate::salted(egui::Id::new("tool-flyout")))).expect("the flyout is shown");
         assert_eq!(app.session.tool_id(), "selection", "a right-click only opens the flyout");
         // Its second row is Rounded Rectangle (30 pt rows).
         let row = egui::pos2(menu.left() + 60.0, menu.top() + 45.0);
@@ -1276,7 +1276,7 @@ pub(crate) mod tests {
             assert_eq!(app.session.tool_id(), "selection");
             let tools: Vec<String> = ctx.data(|d| d.get_temp(egui::Id::new("flyout-tools"))).unwrap();
             let row_index = tools.iter().position(|id| id == "verticalType").unwrap();
-            let menu = ctx.memory(|m| m.area_rect(egui::Id::new("tool-flyout"))).unwrap();
+            let menu = ctx.memory(|m| m.area_rect(crate::salted(egui::Id::new("tool-flyout")))).unwrap();
             let row = egui::pos2(menu.left() + 60.0, menu.top() + 15.0 + row_index as f32 * 30.0);
             frame_in(&mut app, &ctx, 2.0, vec![Event::PointerMoved(row), pointer(row, true)], 2000.0);
             frame_in(&mut app, &ctx, 2.05, vec![pointer(row, false)], 2000.0);
@@ -1408,7 +1408,7 @@ pub(crate) mod tests {
         let ctx = egui::Context::default();
         let at = shapes_button(&mut app, &ctx).center();
         click(&mut app, &ctx, 1.0, at, PointerButton::Secondary);
-        let menu = ctx.memory(|m| m.area_rect(egui::Id::new("tool-flyout"))).expect("the flyout is shown");
+        let menu = ctx.memory(|m| m.area_rect(crate::salted(egui::Id::new("tool-flyout")))).expect("the flyout is shown");
         // Its grab bar runs down its right side: dragging it tears the flyout off.
         let bar = pos2(menu.right() - BAR / 2.0, menu.center().y);
         drag(&mut app, &ctx, 2.0, bar, &[bar + vec2(20.0, 0.0), bar + vec2(60.0, 40.0)]);
@@ -1453,7 +1453,7 @@ pub(crate) mod tests {
         let ctx = egui::Context::default();
         let at = shapes_button(&mut app, &ctx).center();
         click(&mut app, &ctx, 1.0, at, PointerButton::Secondary);
-        let menu = ctx.memory(|m| m.area_rect(egui::Id::new("tool-flyout"))).unwrap();
+        let menu = ctx.memory(|m| m.area_rect(crate::salted(egui::Id::new("tool-flyout")))).unwrap();
         let bar = pos2(menu.right() - BAR / 2.0, menu.center().y);
         click(&mut app, &ctx, 2.0, bar, PointerButton::Primary);
         frame(&mut app, &ctx, 2.2, vec![]);
@@ -1473,7 +1473,7 @@ pub(crate) mod tests {
         frame(&mut app, &ctx, 1.0, vec![Event::PointerMoved(at), b(at, true)]);
         frame(&mut app, &ctx, 1.0 + LONG_PRESS + 0.01, vec![]);
         frame(&mut app, &ctx, 1.45, vec![]);
-        let menu = ctx.memory(|m| m.area_rect(egui::Id::new("tool-flyout"))).expect("the long press opens the flyout");
+        let menu = ctx.memory(|m| m.area_rect(crate::salted(egui::Id::new("tool-flyout")))).expect("the long press opens the flyout");
         let bar = pos2(menu.right() - BAR / 2.0, menu.center().y);
         frame(&mut app, &ctx, 1.5, vec![Event::PointerMoved(bar)]);
         frame(&mut app, &ctx, 1.55, vec![b(bar, false)]);
