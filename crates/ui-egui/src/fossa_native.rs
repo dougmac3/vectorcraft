@@ -39,6 +39,10 @@ pub struct Desk {
     /// The pass the editor's per-frame work last ran in: a frame that draws the desk and a panel
     /// of it runs that work once.
     logic_pass: Option<u64>,
+    /// Where the agent's requests ([`Self::control`]) may read and write files: only the desk's
+    /// own folder unless the host names others ([`Self::set_file_roots`]). The person's own
+    /// clicks and dialogs are not confined.
+    roots: Option<Arc<file_access::AutomationRoots>>,
 }
 
 impl Desk {
@@ -72,7 +76,10 @@ impl Desk {
         // Preferences, recovery folders, updates and the control server are the desktop app's;
         // the desk starts with none of them.
         let app = VectorcraftApp::new(Session::new(), services);
-        Desk { app, ctx: ctx.clone(), saved, style: None, focus_inside: false, focus_seen: None, logic_pass: None }
+        let dir = std::env::temp_dir().join(format!("fossa-vectorcraft-{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        let roots = file_access::AutomationRoots::new(&[dir.as_path()], &[dir.as_path()]).ok().flatten();
+        Desk { app, ctx: ctx.clone(), saved, style: None, focus_inside: false, focus_seen: None, logic_pass: None, roots }
     }
 
     /// Open a file Fossa hands in, as a drop would: a PNG or JPEG becomes a new document of its
@@ -139,6 +146,13 @@ impl Desk {
         layer_png(&mut self.app, layer_id)
     }
 
+    /// The folders the agent's requests may read and write (the project's, say), instead of only
+    /// the desk's own. Each must exist; none at all leaves the agent no files.
+    pub fn set_file_roots(&mut self, read: &[&std::path::Path], write: &[&std::path::Path]) -> Result<(), String> {
+        self.roots = file_access::AutomationRoots::new(read, write)?;
+        Ok(())
+    }
+
     /// Run control method `method` (those of [`crate::control`]: `engine.execute`,
     /// `engine.commands`, `ui.set`, `ui.dialog.set`, `ui.click`...) on the desk's editor, as the
     /// control channel does, in process -> its result, or its error. Also `desk.panels` and
@@ -148,12 +162,18 @@ impl Desk {
             "engine.commands" => return Ok(self.commands()),
             "desk.panels" => return Ok(json!(self.panels())),
             "desk.focus" => return self.focus(params.get("target").cloned().unwrap_or(params)).map(|()| Value::Null),
+            // Made-up keys and clicks would play out in the person's own frames, where files are
+            // not confined: the agent uses commands, which are.
+            "ui.key" | "ui.move" | "ui.click" | "ui.drag" | "ui.wheel" | "ui.text" => {
+                return Err(format!("{method} is not taken inside Fossa: use engine.execute"));
+            }
             _ => {}
         }
         let (req, _reply) = ControlRequest::new(method, params);
         let (app, ctx) = (&mut self.app, &self.ctx);
         app.ui.answering_control = true;
-        let r = file_access::unconfined(|| vectorcraft_engine::guard::catch_panic(|| control::handle(app, ctx, &req)));
+        let Some(roots) = self.roots.as_ref() else { return Err("the desk has no folder the agent may use".into()) };
+        let r = file_access::confine(Some(roots), || vectorcraft_engine::guard::catch_panic(|| control::handle(app, ctx, &req)));
         app.ui.answering_control = false;
         ctx.request_repaint();
         match r {
