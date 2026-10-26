@@ -76,9 +76,14 @@ impl Desk {
         // Preferences, recovery folders, updates and the control server are the desktop app's;
         // the desk starts with none of them.
         let app = VectorcraftApp::new(Session::new(), services);
-        let dir = std::env::temp_dir().join(format!("fossa-vectorcraft-{}", std::process::id()));
-        let _ = std::fs::create_dir_all(&dir);
-        let roots = file_access::AutomationRoots::new(&[dir.as_path()], &[dir.as_path()]).ok().flatten();
+        // A new folder no one else could have made first: a name not guessed in advance, made
+        // fresh (an existing one fails), private on Unix. Without it the agent gets no files.
+        let tag = std::hash::BuildHasher::hash_one(&std::collections::hash_map::RandomState::new(), std::time::SystemTime::now());
+        let dir = std::env::temp_dir().join(format!("fossa-vectorcraft-{}-{tag:016x}", std::process::id()));
+        let made = std::fs::create_dir(&dir).is_ok();
+        #[cfg(unix)]
+        let made = made && std::fs::set_permissions(&dir, std::os::unix::fs::PermissionsExt::from_mode(0o700)).is_ok();
+        let roots = if made { file_access::AutomationRoots::new(&[dir.as_path()], &[dir.as_path()]).ok().flatten() } else { None };
         Desk { app, ctx: ctx.clone(), saved, style: None, focus_inside: false, focus_seen: None, logic_pass: None, roots }
     }
 
